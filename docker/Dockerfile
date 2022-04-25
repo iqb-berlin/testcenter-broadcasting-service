@@ -1,14 +1,28 @@
-FROM node:13.14.0
+ARG NODE_VERSION=14.15.0
 
-ENV PATH /app/node_modules/.bin:$PATH
+FROM node:${NODE_VERSION} as dev
 
 WORKDIR /app
 
-COPY package.json /app/package.json
+COPY src /app/src
+COPY package.json .
+COPY nest-cli.docker.json /app/nest-cli.json
+COPY tsconfig.json .
+COPY tsconfig.build.json .
+
 RUN npm install
 
-COPY . /app
+RUN npx nest build
+
+EXPOSE 3000
+CMD TARGET=dev npx nest start --watch --preserveWatchOutput
+
+
+FROM node:${NODE_VERSION} as prod
+
+COPY --from=dev /app/dist /app
+COPY --from=dev /app/node_modules /app/node_modules
 
 EXPOSE 3000
 
-CMD npm run start
+CMD ["node", "/app/main.js"]

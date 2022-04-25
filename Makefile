@@ -4,6 +4,12 @@ run:
 run-detached:
 	docker-compose -f docker/docker-compose.yml up -d
 
+build-prod:
+	TARGET=prod docker-compose -f docker/docker-compose.yml build
+
+run-prod:
+	TARGET=prod docker-compose -f docker/docker-compose.yml up
+
 stop:
 	docker-compose -f docker/docker-compose.yml stop
 
